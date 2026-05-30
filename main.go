@@ -15,7 +15,7 @@ const (
 // generateRandomElements generates random elements.
 func generateRandomElements(size int) []int {
 	if size == 0 {
-		return []int{}
+		return nil
 	}
 
 	source := rand.NewSource(time.Now().UnixNano())
@@ -26,15 +26,15 @@ func generateRandomElements(size int) []int {
 	}
 
 	array := make([]int, size)
-	for range array {
-		array = append(array, generator.Int())
+	for i := range array {
+		array[i] = generator.Int()
 	}
 	return array
 }
 
 // maximum returns the maximum number of elements.
 func maximum(data []int) int {
-	if len(data) == 0 {
+	if data == nil {
 		return 0
 	}
 
@@ -55,26 +55,27 @@ func maxChunks(data []int) int {
 		return maximum(data)
 	}
 
-	arrMax := []int{}
+	arrMax := make([]int, CHUNKS)
 
 	var wg sync.WaitGroup
-	wg.Add(8)
+	wg.Add(CHUNKS)
 
 	for i := range CHUNKS {
 		start := i * chunkSize
-		end := start + chunkSize
+
+		var end int
+		if i == CHUNKS-1 {
+			remainder := len(data) % CHUNKS
+			end = start + chunkSize + remainder
+		} else {
+			end = start + chunkSize
+		}
+
 		go func(slice []int) {
-			arrMax = append(arrMax, maximum(slice))
+			defer wg.Done()
 
-			wg.Done()
+			arrMax[i] = maximum(slice)
 		}(data[start:end])
-	}
-
-	remainder := len(data) % CHUNKS
-	if remainder != 0 {
-		start := chunkSize * CHUNKS
-		end := start + remainder
-		arrMax = append(arrMax, maximum(data[start:end]))
 	}
 
 	wg.Wait()

@@ -8,24 +8,34 @@ import (
 
 func TestGenerateFunc(t *testing.T) {
 	genArr := generateRandomElements(0)
-	require.Equal(t, []int{}, genArr)
-}
-func TestMaxDefaultCases(t *testing.T) {
-	genArr := generateRandomElements(100000)
-	require.Equal(t, maximum(genArr), maxChunks(genArr))
+	require.Nil(t, genArr)
 
-	genArr = generateRandomElements(350607)
-	require.Equal(t, maximum(genArr), maxChunks(genArr))
-}
-
-func TestMaxZeroCase(t *testing.T) {
-	genArr := generateRandomElements(0)
-	require.Equal(t, 0, maximum(genArr))
-	require.Equal(t, maximum(genArr), maxChunks(genArr))
+	sizes := []int{1, 100, 1984, 3213, 777_777, 100_000_000}
+	for i := range sizes {
+		genArr := generateRandomElements(sizes[i])
+		require.NotNil(t, genArr)
+	}
 }
 
-func TestMaxSingleCase(t *testing.T) {
-	genArr := generateRandomElements(1)
-	require.Equal(t, genArr[0], maximum(genArr))
-	require.Equal(t, maximum(genArr), maxChunks(genArr))
+func TestMaximum(t *testing.T) {
+	genArr := [][]int{generateRandomElements(0), generateRandomElements(1)}
+	cases := []struct {
+		expected int
+		actual   int
+	}{
+		{0, maximum(genArr[0])},
+		{genArr[1][0], maximum(genArr[1])},
+	}
+
+	for _, c := range cases {
+		require.Equal(t, c.expected, c.actual)
+	}
+}
+func TestMaximumAndMaxChunks(t *testing.T) {
+	sizes := []int{0, 1, 100, 1984, 3213, 777_777, 100_000_000}
+
+	for i := range sizes {
+		genArr := generateRandomElements(sizes[i])
+		require.Equal(t, maximum(genArr), maxChunks(genArr))
+	}
 }
